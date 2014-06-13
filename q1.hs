@@ -1,7 +1,6 @@
 import Prelude hiding(flip, curry) -- 同名の関数を定義するために隠している．隠さない場合はMain.flipなどとスコープを指定する
 
 -- 1 基本概念
--- 1.1 セッションとスクリプト
 
 square x = x * x
 
