@@ -176,4 +176,69 @@ Succ m `lt` Succ n = m `lt` n
 m // n = if m `lt` n
           then Zero
           else Succ ((m-.n)//n)
--- TODO: 証明
+-- (n*m)/n=m のmに関する帰納法(n=Zeroを除く)
+-- Zeroの場合
+--   (n*Zero)/n = Zero/n = Zero
+-- Succ mの場合
+--   (n*Succ m)/n
+--    = ((n*m)+n)/n
+--    = Succ ((((n*m)+n)-n)/n)
+--    = Succ ((n*m)/n)
+--    = Succ m
+
+-- 3.3.4
+log2 (Succ Zero) = Zero
+log2 m = Succ (log2 (m // Succ (Succ Zero)))
+-- log(2^m)=mのmに関する帰納法(便宜上Succ(Succ Zero)を2と表す)
+-- Zeroの場合
+--   log(2^Zero) = log(Succ Zero) = Zero
+-- Succ mの場合
+--   log(2^(Succ m))
+--    = log(2^m*2)
+--    = Succ (log (2^m*2 // 2))
+--    = Succ (log (2*2^m // 2)) {TODO: *交換則}
+--    = Succ (log (2^m))
+--    = Succ m
+
+-- 3.4.1
+-- x = (x`div`y)*y + (x`mod`y)より
+-- x`mod`y
+--  = 3 - (3`div`(-4))*(-4)
+--  = 3 - (-1)*(-4)
+--  = -1
+
+-- 3.4.2
+-- x = (x`div`y)*y + (x`mod`y)
+-- x = floor(x/y)*y + (x`mod`y)
+-- (x`mod`y) = x - floor(x/y)*y
+-- {
+--   x/y-1<floor(x/y)<=x/y
+--   -x/y+1> -floor(x/y)>=-x/y
+--   y-x=(-x/y+1)*y< -floor(x/y)*y<=(-x/y)*y=-x
+-- }
+-- x + (y-x) <= (x`mod`y) <= x - x
+-- y <= (x`mod`y) <= 0
+
+-- 3.4.3
+-- 全ての整数xに対してx=floor(x)であり，全ての実数yに対してfloor(y)は整数で
+-- ある．よって，最初の式にx=floor(y)を代入しfloor(y) = floor(floor(y))
+
+-- 3.5.1
+-- 有理数a/bの表現を(x1,y1), (x2,y2)とする
+-- x1/y1=x2/y2
+-- x1*y2=x2*y1
+-- ここでx1,y1は互いに素なのでy2はy1の倍数
+-- また，x2,y2は互いに素なのでy1はy2の倍数
+-- よってy1=y2．同様にx1=x2．
+-- よって表現は唯一．
+
+-- 3.5.2
+-- xの1の位Xに関して
+-- 0から4の場合
+--   z=Xしかなく，y=(x-X)/10も唯一に定まる．
+-- 5-9の場合
+--   z=X-10しかなく，y=(x-(X-10))/10=(x-X)/10+1も唯一に定まる．
+-- 逆に，これらの表現が元のxを表していることは自明．
+repint x = if xx<=4 then (xx, zz) else (xx-10, zz+1)
+    where xx = x-zz*10
+          zz = x`div`10
