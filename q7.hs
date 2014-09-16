@@ -1,0 +1,109 @@
+-- 7 効率
+
+-- 7.1.1
+-- recall
+-- head :: [a]->a
+-- head (x:xs) = x
+-- map :: (a->b)->[a]->[b]
+-- map f [] = []
+-- map f (x:xs) = f x : map f xs
+-- [..] :: Enum a=>a->a->[a] -- 実際にはこうだが
+-- [m..n] = upto m n -- と4.3(p.106)で出てきたので簡単のため使用
+-- upto :: (Integral a)=>a->a->[a]
+-- upto m n = if m>n then [] else m:upto (m+1) n
+--
+--
+-- head [1..1000]
+--   最内簡約系列
+--     = head (1:[2..1000])
+--     = head (1:2:[3..1000])
+--     ...
+--     = head (1:2:...:1000:[])
+--     = 1
+--   最外簡約系列
+--     = head (1:[2..1000])
+--     = 1
+--   最外グラフ簡約系列
+--     = head (1:[2..1000])
+--     = 1
+-- map f [1..3] where f n = 10*10+n
+--   最内簡約系列
+--     = map f (1:[2..3]) where f n = 10*10+n
+--     = map f (1:2:[3..3]) where f n = 10*10+n
+--     = map f (1:2:3:[]) where f n = 10*10+n
+--     = map f (1:2:3:[]) where f n = 10*10+n
+--     = f 1:map f (2:3:[]) where f n = 10*10+n
+--     = (10*10+1):map f (2:3:[]) where f n = 10*10+n
+--     = (100+1):map f (2:3:[]) where f n = 10*10+n
+--     = 101:map f (2:3:[]) where f n = 10*10+n
+--     = 101:f 2:map f (3:[]) where f n = 10*10+n
+--     = 101:(10*10+2):map f (3:[]) where f n = 10*10+n
+--     = 101:(100+2):map f (3:[]) where f n = 10*10+n
+--     = 101:102:map f (3:[]) where f n = 10*10+n
+--     = 101:102:f 3:map f [] where f n = 10*10+n
+--     = 101:102:(10*10+3):map f [] where f n = 10*10+n
+--     = 101:102:(100+3):map f [] where f n = 10*10+n
+--     = 101:102:103:map f [] where f n = 10*10+n
+--     = 101:102:103:[] where f n = 10*10+n
+--
+--   最外簡約系列
+--     = f 1:map f [2..3] where f n = 10*10+n
+--     = (10*10+1):map f [2..3] where f n = 10*10+n
+--     = (100+1):map f [2..3] where f n = 10*10+n
+--     = 101:map f [2..3] where f n = 10*10+n
+--     = 101:f 2:map f [3..3] where f n = 10*10+n
+--     = 101:(10*10+2):map f [3..3] where f n = 10*10+n
+--     = 101:(100+2):map f [3..3] where f n = 10*10+n
+--     = 101:102:map f [3..3] where f n = 10*10+n
+--     = 101:102:f 3:map f [] where f n = 10*10+n
+--     = 101:102:(10*10+3):map f [] where f n = 10*10+n
+--     = 101:102:(100+3):map f [] where f n = 10*10+n
+--     = 101:102:103:map f [] where f n = 10*10+n
+--     = 101:102:103:[] where f n = 10*10+n
+--   最外グラフ簡約系列
+--     = f 1:map f [2..3] where f n = 10*10+n
+--     = f 1:map f [2..3] where f n = 100+n
+--     = (100+1):map f [2..3] where f n = 100+n
+--     = 101:map f [2..3] where f n = 100+n
+--     = 101:f 2:map f [3..3] where f n = 100+n
+--     = 101:(100+2):map f [3..3] where f n = 100+n
+--     = 101:102:map f [3..3] where f n = 100+n
+--     = 101:102:f 3:map f [] where f n = 100+n
+--     = 101:102:(100+3):map f [] where f n = 100+n
+--     = 101:102:103:map f [] where f n = 100+n
+--     = 101:102:103:[] where f n = 100+n
+
+-- 7.1.2
+sort :: Ord a=>[a]->[a]
+sort = foldr insert []
+insert :: Ord a=>a->[a]->[a]
+insert x [] = [x]
+insert x (y:ys) = if x<=y then x:y:ys else y:insert x ys
+
+-- recall
+-- foldr f e [] = e
+-- foldr f e (x:xs) = f x (foldr f e xs)
+
+-- sort [3,4,2,1]
+-- 先行評価
+--   = foldr insert [] [3,4,2,1]
+--   = insert 3 (foldr insert [] [4,2,1])
+--   = insert 3 (insert 4 (foldr insert [] [2,1]))
+--   = insert 3 (insert 4 (insert 2 (foldr insert [] [1])))
+--   = insert 3 (insert 4 (insert 2 (insert 1 (foldr insert [] []))))
+--   = insert 3 (insert 4 (insert 2 (insert 1 [])))
+--   = insert 3 (insert 4 (insert 2 [1]))
+--   = insert 3 (insert 4 (if 2<=1 then 2:1:[] else 1:insert 2 []))
+--   = insert 3 (insert 4 (1:insert 2 []))
+--   = insert 3 (insert 4 (1:[2]))
+--   = insert 3 (if 4<=1 then 4:1:[2] else 1:insert 4 [2])
+--   = insert 3 (1:insert 4 [2])
+--   = insert 3 (1:if 4<=2 then 4:2:[] else 2:insert 4 [])
+--   = insert 3 (1:2:insert 4 [])
+--   = insert 3 (1:2:[4])
+--   = if 3<=1 then 3:1:2:[4] else 1:insert 3 (2:[4])
+--   = 1:insert 3 (2:[4])
+--   = 1:if 3<=2 then 3:2:[4] else 2:insert 3 [4]
+--   = 1:2:insert 3 [4]
+--   = 1:2:if 3<=4 then 3:4:[] else 4:insert 3 []
+--   = 1:2:3:4:[]
